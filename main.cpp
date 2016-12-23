@@ -9,6 +9,10 @@ struct Dictionary {
 
 };
 
+void read_dictionaries(int dictionaries_count, Dictionary *dictionaries);
+
+void cleanup(int dictionaries_count, Dictionary *dictionaries);
+
 int main() {
 
     char input[MAX_INPUT_SIZE];
@@ -18,38 +22,42 @@ int main() {
     std::cin >> dictionaries_count;
     Dictionary *dictionaries = new Dictionary[dictionaries_count];
 
-    std::cout << dictionaries_count << std::endl;
-
     // reading dictionaries
-    for(int i=0; i<dictionaries_count; i++) {
-
-        int words_count;
-        std::cin >> words_count;
-        std::cout << words_count << std::endl;
-
-        dictionaries[i].words = new char*[words_count];
-        dictionaries[i].words_count = words_count;
-        for(int j=0;j<words_count;j++) {
-            dictionaries[i].words[j] = new char[20];
-            scanf("%s",dictionaries[i].words[j]);
-            std::cout << dictionaries[i].words[j] << std::endl;
-        }
-
-
-    }
+    read_dictionaries(dictionaries_count, dictionaries);
 
 
 
 
 
     // clean up
-    for(int i=0;i<dictionaries_count;i++) {
-        for(int j=0;j<dictionaries[i].words_count;j++) {
-            delete [] dictionaries[i].words[j];
-        }
-    }
+    cleanup(dictionaries_count, dictionaries);
 
     delete [] dictionaries;
 
     return 0;
+}
+
+void cleanup(int dictionaries_count, Dictionary *dictionaries) {
+    for(int i=0; i < dictionaries_count; i++) {
+        for(int j=0;j<dictionaries[i].words_count;j++) {
+            delete [] dictionaries[i].words[j];
+        }
+    }
+}
+
+void read_dictionaries(int dictionaries_count, Dictionary *dictionaries) {
+    for(int i=0; i < dictionaries_count; i++) {
+
+        int words_count;
+        std::cin >> words_count;
+
+        dictionaries[i].words = new char*[words_count];
+        dictionaries[i].words_count = words_count;
+        for(int j=0;j<words_count;j++) {
+            dictionaries[i].words[j] = new char[20];
+            scanf("%s",dictionaries[i].words[j]);
+        }
+
+
+    }
 }
