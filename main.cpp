@@ -17,13 +17,12 @@ struct Dictionary {
 
     int words_count; // max 8000
     Word *words; // max 20*8000
-    //char** words; // max 20*8000
 
 };
 
-void read_dictionaries(int dictionaries_count, Dictionary *dictionaries);
-
+void read_dictionaries(int dictionaries_count, Dictionary *dictionaries, char *input);
 void cleanup(int dictionaries_count, Dictionary *dictionaries);
+void find_occurrences(Word word, char *input, int len);
 
 int main() {
 
@@ -35,7 +34,7 @@ int main() {
     Dictionary *dictionaries = new Dictionary[dictionaries_count];
 
     // reading dictionaries
-    read_dictionaries(dictionaries_count, dictionaries);
+    read_dictionaries(dictionaries_count, dictionaries, input);
 
 
 
@@ -57,7 +56,7 @@ void cleanup(int dictionaries_count, Dictionary *dictionaries) {
     }
 }
 
-void read_dictionaries(int dictionaries_count, Dictionary *dictionaries) {
+void read_dictionaries(int dictionaries_count, Dictionary *dictionaries, char *input) {
     for(int i=0; i < dictionaries_count; i++) {
 
         int words_count;
@@ -66,10 +65,19 @@ void read_dictionaries(int dictionaries_count, Dictionary *dictionaries) {
         dictionaries[i].words = new Word[words_count];
         dictionaries[i].words_count = words_count;
         for(int j=0;j<words_count;j++) {
-            dictionaries[i].words[j].word = new char[20];
+            dictionaries[i].words[j].word = new char[WORD_SIZE];
             scanf("%s",dictionaries[i].words[j].word);
+
+            find_occurrences(dictionaries[i].words[j], input, MAX_INPUT_SIZE);
         }
 
 
     }
+}
+
+void find_occurrences(Word word, char *input, int len) {
+
+    
+
+
 }
