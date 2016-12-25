@@ -10,6 +10,7 @@ struct Occurrence {
 
 struct Word {
     char *word;
+    int length = 0;
     Occurrence *occurrence;
 };
 
@@ -68,6 +69,11 @@ void read_dictionaries(int dictionaries_count, Dictionary *dictionaries, char *i
             dictionaries[i].words[j].word = new char[WORD_SIZE];
             scanf("%s",dictionaries[i].words[j].word);
 
+            while(dictionaries[i].words[j].word[dictionaries[i].words[j].length] > 96 && dictionaries[i].words[j].word[dictionaries[i].words[j].length] < 123) {
+                dictionaries[i].words[j].length++;
+            }
+            std::cout << dictionaries[i].words[j].length << std::endl;
+
             find_occurrences(dictionaries[i].words[j], input, MAX_INPUT_SIZE);
         }
 
@@ -77,7 +83,10 @@ void read_dictionaries(int dictionaries_count, Dictionary *dictionaries, char *i
 
 void find_occurrences(Word word, char *input, int len) {
 
-    
+    int i = 0;
+    while(input[i] != '\n' && i < len) {
 
+        i++;
+    }
 
 }
