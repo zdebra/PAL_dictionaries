@@ -2,6 +2,8 @@
 
 const int MAX_INPUT_SIZE = 3000000;
 const int WORD_SIZE = 20;
+int MIN_LEN = MAX_INPUT_SIZE;
+int dictionaries_count;
 
 struct Occurrence {
     int position = 0;
@@ -21,27 +23,34 @@ struct Dictionary {
 
 };
 
+Dictionary *dictionaries;
+
 void read_dictionaries(int dictionaries_count, Dictionary *dictionaries, char *input);
 void cleanup(int dictionaries_count, Dictionary *dictionaries);
 void find_occurrences(Word &word, char *input, int len);
 bool is_alphabet(int ch);
 bool is_same(Word &word, int pos, char *input);
+void create_combination(int dictionary, int start, int length);
 
 int main() {
 
     char input[MAX_INPUT_SIZE];
     std::cin.getline(input, MAX_INPUT_SIZE);
 
-    int dictionaries_count;
     std::cin >> dictionaries_count;
-    Dictionary *dictionaries = new Dictionary[dictionaries_count];
+    dictionaries = new Dictionary[dictionaries_count];
 
     // reading dictionaries
     read_dictionaries(dictionaries_count, dictionaries, input);
 
-
-
-
+    // start recursion for each word occurrence in first dictionary
+    for(int i=0; i<dictionaries[0].words_count; i++) {
+        Occurrence *cur = dictionaries[0].words[i].occurrence;
+        while(cur!=NULL) {
+            create_combination(1, cur->position, dictionaries[0].words[i].length);
+            cur = cur->next;
+        }
+    }
 
     // clean up
     cleanup(dictionaries_count, dictionaries);
@@ -80,15 +89,6 @@ void read_dictionaries(int dictionaries_count, Dictionary *dictionaries, char *i
 
             find_occurrences(dictionaries[i].words[j], input, MAX_INPUT_SIZE);
 
-           /* std::cout << dictionaries[i].words[j].word << ", " << dictionaries[i].words[j].length << ", ";
-            Word word = dictionaries[i].words[j];
-            Occurrence *cur = dictionaries[i].words[j].occurrence;
-            while(cur != NULL) {
-                std::cout << cur->position << ", ";
-                cur = cur->next;
-            }
-            std::cout << std::endl;
-            */
         }
 
 
@@ -128,4 +128,47 @@ bool is_same(Word &word, int pos, char *input) {
 
 bool is_alphabet(int ch) {
     return ch > 96 && ch < 123;
+}
+
+void create_combination(int dictionary, int start, int length) {
+
+    for(int i=0; i<dictionaries[dictionary].words_count;i++) {
+        Occurrence *cur = dictionaries[dictionary].words[i].occurrence;
+        int w_len = dictionaries[dictionary].words[i].length;
+        while(cur!=NULL) {
+            int w_start = cur->position;
+
+            // add it
+            if(start > w_start + w_len) {
+                // the word is before substring
+                int new_len = length + (start-w_start);
+                if(new_len > MIN_LEN) {
+                    return;
+                }
+                create_combination(dictionary+1, w_start, new_len);
+            }
+
+            else if(start > w_start && start < (w_start+w_len)) {
+
+                int new_len = length + (start-w_start);
+                if(new_len > MIN_LEN) {
+                    return;
+                }
+                create_combination(dictionary+1, w_start, new_len);
+
+            }
+
+            else if(start <= w_start && )
+
+            cur = cur->next;
+        }
+    }
+
+
+
+    if(dictionary == dictionaries_count-1) {
+
+
+    }
+
 }
