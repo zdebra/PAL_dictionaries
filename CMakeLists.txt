@@ -3,5 +3,5 @@ project(PAL6)
 
 set(CMAKE_CXX_STANDARD 11)
 
-set(SOURCE_FILES main.cpp)
+set(SOURCE_FILES main.cpp State.h LinkedList.cpp LinkedList.h)
 add_executable(PAL6 ${SOURCE_FILES})
