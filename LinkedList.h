@@ -5,17 +5,15 @@
 #ifndef PAL6_LINKEDLIST_H
 #define PAL6_LINKEDLIST_H
 
-#import "State.h"
-
 class LinkedList {
 private:
-    State **states;
+    int *states;
     int max_size;
     int index; // index of next to be added
 public:
     LinkedList(int max_size);
-    void push(State *state);
-    State* pop();
+    void push(int state);
+    int pop();
     void clear();
     ~LinkedList();
 };

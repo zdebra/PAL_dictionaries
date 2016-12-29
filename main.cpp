@@ -1,5 +1,7 @@
 #include <iostream>
 #include "LinkedList.h"
+#include "FinalState.h"
+#include "Dictionary.h"
 
 const int MAX_INPUT_SIZE = 3000000;
 const int WORD_SIZE = 20;
@@ -17,11 +19,19 @@ int main() {
     int dictionaries_count;
     std::cin >> dictionaries_count;
 
+    int **transition_table = new int*[dictionaries_count];
+
     for(int i=0;i<dictionaries_count;i++) {
 
     }
 
 
+    // cleanup
+    for(int i=0;i<dictionaries_count;i++) {
+        delete [] transition_table[i];
+    }
+
+    delete [] transition_table;
 
     return 0;
 }

@@ -6,12 +6,12 @@
 
 LinkedList::LinkedList(int max_size) {
     this->max_size = max_size;
-    this->states = new State*[max_size];
+    this->states = new int[max_size];
     this->index = 0;
 }
 
-void LinkedList::push(State *state) {
-    std::cout << "pushing state " << state->value << std::endl;
+void LinkedList::push(int state) {
+    std::cout << "pushing state " << state << std::endl;
     if(index > max_size) {
         throw;
     }
@@ -19,13 +19,13 @@ void LinkedList::push(State *state) {
     index++;
 }
 
-State *LinkedList::pop() {
+int LinkedList::pop() {
     if(index==0) {
         return nullptr;
     }
 
     index--;
-    std::cout << "poping: " << states[index]->value << std::endl;
+    std::cout << "poping: " << states[index] << std::endl;
     return states[index];
 }
 
