@@ -6,8 +6,8 @@
 #define PAL6_STATE_H
 
 struct FinalState {
-    int word_length;
-    int *dictionaries;
+    int word_length = 0;
+    bool *dictionaries;
 };
 
 
