@@ -11,7 +11,7 @@ LinkedList::LinkedList(int max_size) {
 }
 
 void LinkedList::push(State *state) {
-    //std::cout << "pushing state " << state->value << std::endl;
+    std::cout << "pushing state " << state->value << std::endl;
     if(index > max_size) {
         throw;
     }
@@ -25,10 +25,14 @@ State *LinkedList::pop() {
     }
 
     index--;
-    //std::cout << "poping: " << states[index]->value << std::endl;
+    std::cout << "poping: " << states[index]->value << std::endl;
     return states[index];
 }
 
 LinkedList::~LinkedList() {
     delete [] states;
+}
+
+void LinkedList::clear() {
+    index = 0;
 }

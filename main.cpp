@@ -11,10 +11,15 @@ bool is_alphabet(int ch);
 
 int main() {
 
-    //char input[MAX_INPUT_SIZE];
-    //std::cin.getline(input, MAX_INPUT_SIZE);
+    char input[MAX_INPUT_SIZE];
+    std::cin.getline(input, MAX_INPUT_SIZE);
 
+    int dictionaries_count;
+    std::cin >> dictionaries_count;
 
+    for(int i=0;i<dictionaries_count;i++) {
+
+    }
 
 
 

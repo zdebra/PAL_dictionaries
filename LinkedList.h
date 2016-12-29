@@ -16,6 +16,7 @@ public:
     LinkedList(int max_size);
     void push(State *state);
     State* pop();
+    void clear();
     ~LinkedList();
 };
 
