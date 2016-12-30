@@ -10,15 +10,20 @@ const int ALPHABET_SIZE = 26;
 
 bool is_alphabet(int ch);
 
-void
-create_transition_table(int dictionaries_count, int **transition_table, FinalState *finalStates, int next_state);
+void create_transition_table(int dictionaries_count, int **transition_table, FinalState *finalStates, int next_state);
 
 void cleanup(int max_state_count, int *const *transition_table, const FinalState *finalStates,
              const Dictionary *dictionaries, const LinkedList *active, const LinkedList *new_states);
 
-void proces_automata(const char *input, int dictionaries_count, int max_state_count, int *const *transition_table,
-                     const FinalState *finalStates, int &total_start, int &total_len, Dictionary *&dictionaries,
-                     LinkedList *&active, LinkedList *&new_states);
+void process_automata(const char *input, int dictionaries_count, int max_state_count, int *const *transition_table,
+                      const FinalState *finalStates, int &total_start, int &total_len, Dictionary *&dictionaries,
+                      LinkedList *&active, LinkedList *&new_states);
+
+void find_first_substring(int dictionaries_count, const FinalState *finalStates, Dictionary *const &dictionaries, int i,
+                          int next, int &total_start, int &total_len, bool &all_dictionaries);
+
+void find_best_substring(int dictionaries_count, const FinalState *finalStates, Dictionary *const &dictionaries, int i,
+                         int next, int &total_start, int &total_len);
 
 int main() {
 
@@ -43,9 +48,9 @@ int main() {
     LinkedList *active;
     LinkedList *new_states;
 
-    proces_automata(input, dictionaries_count, max_state_count, transition_table, finalStates, total_start, total_len,
-                    dictionaries, active,
-                    new_states);
+    process_automata(input, dictionaries_count, max_state_count, transition_table, finalStates, total_start, total_len,
+                     dictionaries, active,
+                     new_states);
 
     std::cout << total_start << std::endl;
     std::cout << total_len << std::endl;
@@ -56,9 +61,9 @@ int main() {
     return 0;
 }
 
-void proces_automata(const char *input, int dictionaries_count, int max_state_count, int *const *transition_table,
-                     const FinalState *finalStates, int &total_start, int &total_len, Dictionary *&dictionaries,
-                     LinkedList *&active, LinkedList *&new_states) {
+void process_automata(const char *input, int dictionaries_count, int max_state_count, int *const *transition_table,
+                      const FinalState *finalStates, int &total_start, int &total_len, Dictionary *&dictionaries,
+                      LinkedList *&active, LinkedList *&new_states) {
 
     dictionaries = new Dictionary[dictionaries_count]();
     active = new LinkedList(max_state_count);
@@ -81,62 +86,13 @@ void proces_automata(const char *input, int dictionaries_count, int max_state_co
 
                     if (!all_dictionaries) {
 
-                        all_dictionaries = true;
-                        // note all dictionaries containing this word
-                        for (int j = 0; j < dictionaries_count; j++) {
-                            // find all dictionaries containing this word
-                            if (finalStates[next].dictionaries[j]) {
-
-                                if (!dictionaries[j].word_found || i > dictionaries[j].start_index) {
-                                    dictionaries[j].word_found = true;
-                                    dictionaries[j].end_index = i;
-                                    dictionaries[j].start_index = i + 1 - finalStates[next].word_length;
-                                }
-
-                            }
-
-                            // check if word for all dictionaries was found
-                            if (!dictionaries[j].word_found) {
-                                all_dictionaries = false;
-                            }
-
-                        }
-
-                        // set totals
-                        if (all_dictionaries) {
-                            // total_start is min of all (last found) words from all dictionaries
-                            for (int j = 0; j < dictionaries_count; j++) {
-                                if (dictionaries[j].start_index < total_start) {
-                                    total_start = dictionaries[j].start_index;
-                                }
-                            }
-                            total_len = i - total_start + 1;
-                        }
+                        find_first_substring(dictionaries_count, finalStates, dictionaries, i, next, total_start,
+                                             total_len, all_dictionaries);
 
                     } else {
 
-                        // add it to dictionary as a last found word (the word could be in more dictionaries)
-                        int possible_new_total_len = 0;
-                        for (int j = 0; j < dictionaries_count; j++) {
-                            if (finalStates[next].dictionaries[j]) {
-                                if (i > dictionaries[j].start_index) {
-                                    dictionaries[j].start_index = i;
-                                    dictionaries[j].end_index = i + finalStates[next].word_length;
-
-                                }
-                            }
-                            possible_new_total_len += dictionaries[j].end_index - dictionaries[j].start_index + 1;
-                        }
-
-                        // check if it doesn't create a new minimum substring
-                        if (possible_new_total_len < total_len) {
-                            total_len = possible_new_total_len;
-                            for (int j = 0; j < dictionaries_count; j++) {
-                                if (dictionaries[j].start_index < total_start) {
-                                    total_start = dictionaries[j].start_index;
-                                }
-                            }
-                        }
+                        find_best_substring(dictionaries_count, finalStates, dictionaries, i, next, total_start,
+                                            total_len);
 
                     }
 
@@ -157,7 +113,71 @@ void proces_automata(const char *input, int dictionaries_count, int max_state_co
 
         i++;
     }
-    
+
+}
+
+void find_best_substring(int dictionaries_count, const FinalState *finalStates, Dictionary *const &dictionaries, int i,
+                         int next, int &total_start,
+                         int &total_len) {
+
+    // add it to dictionary as a last found word (the word could be in more dictionaries)
+    int possible_new_total_len = 0;
+    for (int j = 0; j < dictionaries_count; j++) {
+        if (finalStates[next].dictionaries[j]) {
+            if (i > dictionaries[j].start_index) {
+                dictionaries[j].start_index = i;
+                dictionaries[j].end_index = i + finalStates[next].word_length;
+
+            }
+        }
+        possible_new_total_len += dictionaries[j].end_index - dictionaries[j].start_index + 1;
+    }
+
+    // check if it doesn't create a new minimum substring
+    if (possible_new_total_len < total_len) {
+        total_len = possible_new_total_len;
+        for (int j = 0; j < dictionaries_count; j++) {
+            if (dictionaries[j].start_index < total_start) {
+                total_start = dictionaries[j].start_index;
+            }
+        }
+    }
+
+}
+
+void find_first_substring(int dictionaries_count, const FinalState *finalStates, Dictionary *const &dictionaries, int i,
+                          int next, int &total_start, int &total_len, bool &all_dictionaries) {
+    all_dictionaries = true;
+    // note all dictionaries containing this word
+    for (int j = 0; j < dictionaries_count; j++) {
+        // find all dictionaries containing this word
+        if (finalStates[next].dictionaries[j]) {
+
+            if (!dictionaries[j].word_found || i > dictionaries[j].start_index) {
+                dictionaries[j].word_found = true;
+                dictionaries[j].end_index = i;
+                dictionaries[j].start_index = i + 1 - finalStates[next].word_length;
+            }
+
+        }
+
+        // check if word for all dictionaries was found
+        if (!dictionaries[j].word_found) {
+            all_dictionaries = false;
+        }
+
+    }
+
+    // set totals
+    if (all_dictionaries) {
+        // total_start is min of all (last found) words from all dictionaries
+        for (int j = 0; j < dictionaries_count; j++) {
+            if (dictionaries[j].start_index < total_start) {
+                total_start = dictionaries[j].start_index;
+            }
+        }
+        total_len = i - total_start + 1;
+    }
 }
 
 void cleanup(int max_state_count, int *const *transition_table, const FinalState *finalStates,
@@ -175,8 +195,7 @@ void cleanup(int max_state_count, int *const *transition_table, const FinalState
 
 }
 
-void
-create_transition_table(int dictionaries_count, int **transition_table, FinalState *finalStates, int next_state) {
+void create_transition_table(int dictionaries_count, int **transition_table, FinalState *finalStates, int next_state) {
     for (int i = 0; i < dictionaries_count; i++) {
         int words_count;
         scanf("%d\n", &words_count);
@@ -211,7 +230,6 @@ create_transition_table(int dictionaries_count, int **transition_table, FinalSta
 
     }
 }
-
 
 bool is_alphabet(int ch) {
     return ch > 96 && ch < 123;
