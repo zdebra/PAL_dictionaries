@@ -61,34 +61,12 @@ int main() {
 
     Dictionary *dictionaries = new Dictionary[dictionaries_count]();
 
-    /*
-    std::cout << "Transition table" << std::endl;
-    for(int i=0;i<next_state;i++) {
-        std::cout << i << ": ";
-        for(int j=0;j<ALPHABET_SIZE;j++) {
-            if(transition_table[i][j] != 0) {
-                std::cout << (char) (j + 97) << "("<< transition_table[i][j] <<")" << " ";
-            }
-            else {
-                std::cout << " - ";
-            }
-        }
-        std::cout << std::endl;
-    }
-
-    std::cout << "Final states" << std::endl;
-
-    for(int i=0; i<next_state; i++) {
-        std::cout << i << ": " << finalStates[i].word_length << std::endl;
-    }
-    */
-
     LinkedList *active = new LinkedList(max_state_count);
     LinkedList *new_states = new LinkedList(max_state_count);
 
     int i = 0;
     bool all_dictionaries = false;
-    int total_start = 0;
+    int total_start = MAX_INPUT_SIZE - 1;
     int total_len = MAX_INPUT_SIZE;
     while(is_alphabet(input[i])) {
         active->push(0);
@@ -114,8 +92,8 @@ int main() {
 
                                 if (!dictionaries[j].word_found || i > dictionaries[j].start_index) {
                                     dictionaries[j].word_found = true;
-                                    dictionaries[j].start_index = i;
-                                    dictionaries[j].end_index = i + finalStates[next].word_length;
+                                    dictionaries[j].end_index = i;
+                                    dictionaries[j].start_index = i + 1 - finalStates[next].word_length;
                                 }
 
                             }
