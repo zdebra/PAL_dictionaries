@@ -197,7 +197,7 @@ void cleanup(int max_state_count, int *const *transition_table, const FinalState
 void create_transition_table(int dictionaries_count, int **transition_table, FinalState *finalStates, int next_state) {
     for (int i = 0; i < dictionaries_count; i++) {
         int words_count;
-        scanf("%d\n", &words_count);
+        scanf("%d\r\n", &words_count);
 
         for (int j = 0; j < words_count; j++) {
             int c;
@@ -217,6 +217,7 @@ void create_transition_table(int dictionaries_count, int **transition_table, Fin
                 }
                 word_len++;
             }
+            scanf("\n");
             // end of a word - setting a finish state
             if (finalStates[cur_state].word_length == 0) {
                 finalStates[cur_state].word_length = word_len;
