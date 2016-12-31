@@ -121,26 +121,25 @@ void find_best_substring(int dictionaries_count, const FinalState *finalStates, 
                          int &total_len) {
 
     // add it to dictionary as a last found word (the word could be in more dictionaries)
-    int possible_new_total_len = 0;
+    int cur_min_index = MAX_INPUT_SIZE-1;
+    int cur_max_index = 0;
     for (int j = 0; j < dictionaries_count; j++) {
         if (finalStates[next].dictionaries[j]) {
-            if (i > dictionaries[j].start_index) {
-                dictionaries[j].start_index = i;
-                dictionaries[j].end_index = i + finalStates[next].word_length;
+            if ((i+1-finalStates[next].word_length) > dictionaries[j].start_index) {
+                dictionaries[j].end_index = i;
+                dictionaries[j].start_index = i + 1 - finalStates[next].word_length;
 
             }
         }
-        possible_new_total_len += dictionaries[j].end_index - dictionaries[j].start_index + 1;
+        cur_min_index = (dictionaries[j].start_index < cur_min_index) ? dictionaries[j].start_index : cur_min_index;
+        cur_max_index = (dictionaries[j].end_index > cur_max_index) ? dictionaries[j].end_index : cur_max_index;
     }
 
     // check if it doesn't create a new minimum substring
+    int possible_new_total_len = cur_max_index - cur_min_index + 1;
     if (possible_new_total_len < total_len) {
         total_len = possible_new_total_len;
-        for (int j = 0; j < dictionaries_count; j++) {
-            if (dictionaries[j].start_index < total_start) {
-                total_start = dictionaries[j].start_index;
-            }
-        }
+        total_start = cur_min_index;
     }
 
 }
@@ -153,7 +152,7 @@ void find_first_substring(int dictionaries_count, const FinalState *finalStates,
         // find all dictionaries containing this word
         if (finalStates[next].dictionaries[j]) {
 
-            if (!dictionaries[j].word_found || i > dictionaries[j].start_index) {
+            if (!dictionaries[j].word_found || (i+1-finalStates[next].word_length) > dictionaries[j].start_index) {
                 dictionaries[j].word_found = true;
                 dictionaries[j].end_index = i;
                 dictionaries[j].start_index = i + 1 - finalStates[next].word_length;
