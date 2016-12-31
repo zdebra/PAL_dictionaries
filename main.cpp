@@ -25,6 +25,8 @@ void find_first_substring(int dictionaries_count, const FinalState *finalStates,
 void find_best_substring(int dictionaries_count, const FinalState *finalStates, Dictionary *const &dictionaries, int i,
                          int next, int &total_start, int &total_len);
 
+bool is_all_found(int dictionaries_count, Dictionary *const &dictionaries);
+
 int main() {
 
     char input[MAX_INPUT_SIZE];
@@ -104,7 +106,6 @@ void process_automata(const char *input, int dictionaries_count, int max_state_c
         }
 
         // copy new states
-        // todo rewrite with memcopy
         active->clear();
         int cur;
         while ((cur = new_states->pop()) != -1) {
@@ -121,16 +122,20 @@ void find_best_substring(int dictionaries_count, const FinalState *finalStates, 
                          int &total_len) {
 
     // add it to dictionary as a last found word (the word could be in more dictionaries)
+    for (int j = 0; j < finalStates[next].dictionaries->get_index(); j++) {
+        int d = finalStates[next].dictionaries->get_states()[j];
+
+        if ((i+1-finalStates[next].word_length) > dictionaries[d].start_index) {
+            dictionaries[d].end_index = i;
+            dictionaries[d].start_index = i + 1 - finalStates[next].word_length;
+
+        }
+    }
+
+    // find min and max indexes
     int cur_min_index = MAX_INPUT_SIZE-1;
     int cur_max_index = 0;
-    for (int j = 0; j < dictionaries_count; j++) {
-        if (finalStates[next].dictionaries[j]) {
-            if ((i+1-finalStates[next].word_length) > dictionaries[j].start_index) {
-                dictionaries[j].end_index = i;
-                dictionaries[j].start_index = i + 1 - finalStates[next].word_length;
-
-            }
-        }
+    for(int j=0;j<dictionaries_count;j++) {
         cur_min_index = (dictionaries[j].start_index < cur_min_index) ? dictionaries[j].start_index : cur_min_index;
         cur_max_index = (dictionaries[j].end_index > cur_max_index) ? dictionaries[j].end_index : cur_max_index;
     }
@@ -146,26 +151,21 @@ void find_best_substring(int dictionaries_count, const FinalState *finalStates, 
 
 void find_first_substring(int dictionaries_count, const FinalState *finalStates, Dictionary *const &dictionaries, int i,
                           int next, int &total_start, int &total_len, bool &all_dictionaries) {
-    all_dictionaries = true;
     // note all dictionaries containing this word
-    for (int j = 0; j < dictionaries_count; j++) {
-        // find all dictionaries containing this word
-        if (finalStates[next].dictionaries[j]) {
+    for (int j = 0; j < finalStates[next].dictionaries->get_index(); j++) {
 
-            if (!dictionaries[j].word_found || (i+1-finalStates[next].word_length) > dictionaries[j].start_index) {
-                dictionaries[j].word_found = true;
-                dictionaries[j].end_index = i;
-                dictionaries[j].start_index = i + 1 - finalStates[next].word_length;
-            }
+        int d = finalStates[next].dictionaries->get_states()[j];
 
-        }
-
-        // check if word for all dictionaries was found
-        if (!dictionaries[j].word_found) {
-            all_dictionaries = false;
+        if (!dictionaries[d].word_found || (i+1-finalStates[next].word_length) > dictionaries[d].start_index) {
+            dictionaries[d].word_found = true;
+            dictionaries[d].end_index = i;
+            dictionaries[d].start_index = i + 1 - finalStates[next].word_length;
         }
 
     }
+
+    // check if word for all dictionaries was found
+    all_dictionaries = is_all_found(dictionaries_count, dictionaries);
 
     // set totals
     if (all_dictionaries) {
@@ -177,6 +177,15 @@ void find_first_substring(int dictionaries_count, const FinalState *finalStates,
         }
         total_len = i - total_start + 1;
     }
+}
+
+bool is_all_found(int dictionaries_count, Dictionary *const &dictionaries) {
+    for(int j=0;j<dictionaries_count;j++) {
+        if(!dictionaries[j].word_found) {
+            return false;
+        }
+    }
+    return true;
 }
 
 void cleanup(int max_state_count, int *const *transition_table, const FinalState *finalStates,
@@ -198,6 +207,7 @@ void create_transition_table(int dictionaries_count, int **transition_table, Fin
     for (int i = 0; i < dictionaries_count; i++) {
         int words_count;
         scanf("%d\r\n", &words_count);
+        //scanf("%d\n", &words_count);
 
         for (int j = 0; j < words_count; j++) {
             int c;
@@ -221,10 +231,10 @@ void create_transition_table(int dictionaries_count, int **transition_table, Fin
             // end of a word - setting a finish state
             if (finalStates[cur_state].word_length == 0) {
                 finalStates[cur_state].word_length = word_len;
-                finalStates[cur_state].dictionaries = new bool[dictionaries_count]();
+                finalStates[cur_state].dictionaries = new LinkedList(dictionaries_count);
             }
 
-            finalStates[cur_state].dictionaries[i] = true;
+            finalStates[cur_state].dictionaries->push(i);
 
         }
 

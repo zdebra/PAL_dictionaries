@@ -15,6 +15,9 @@ public:
     void push(int state);
     int pop();
     void clear();
+    void copy(int* new_states, int i);
+    int* get_states();
+    int get_index();
     ~LinkedList();
 };
 

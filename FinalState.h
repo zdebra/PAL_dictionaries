@@ -5,9 +5,11 @@
 #ifndef PAL6_STATE_H
 #define PAL6_STATE_H
 
+#include "LinkedList.h"
+
 struct FinalState {
     int word_length = 0;
-    bool *dictionaries;
+    LinkedList *dictionaries;
 };
 
 
