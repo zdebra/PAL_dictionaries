@@ -30,10 +30,10 @@ bool is_all_found(int dictionaries_count, Dictionary *const &dictionaries);
 int main() {
 
     char input[MAX_INPUT_SIZE];
-    std::cin.getline(input, MAX_INPUT_SIZE);
+    scanf("%s\r\n", input);
 
     int dictionaries_count;
-    std::cin >> dictionaries_count;
+    scanf("%d\r\n", &dictionaries_count);
 
     int max_state_count = dictionaries_count * MAX_DICTIONARY_SIZE * WORD_SIZE;
     int **transition_table = new int *[max_state_count];
@@ -43,7 +43,6 @@ int main() {
 
     // reading the input, create the automata
     create_transition_table(dictionaries_count, transition_table, finalStates, next_state);
-
     int total_start = MAX_INPUT_SIZE - 1;
     int total_len = MAX_INPUT_SIZE;
     Dictionary *dictionaries;
@@ -207,14 +206,16 @@ void create_transition_table(int dictionaries_count, int **transition_table, Fin
     for (int i = 0; i < dictionaries_count; i++) {
         int words_count;
         scanf("%d\r\n", &words_count);
-        //scanf("%d\n", &words_count);
 
         for (int j = 0; j < words_count; j++) {
-            int c;
+
+            char word[WORD_SIZE];
+            scanf("%s\r\n", word);
+
             int cur_state = 0;
             int word_len = 0;
-            while (is_alphabet(c = getchar())) {
-                int ch_index = c - 97;
+            while (is_alphabet(word[word_len])) {
+                int ch_index = word[word_len] - 97;
                 if (transition_table[cur_state][ch_index] == 0) {
                     // create new state
                     transition_table[next_state] = new int[ALPHABET_SIZE]();
@@ -227,7 +228,6 @@ void create_transition_table(int dictionaries_count, int **transition_table, Fin
                 }
                 word_len++;
             }
-            scanf("\n");
             // end of a word - setting a finish state
             if (finalStates[cur_state].word_length == 0) {
                 finalStates[cur_state].word_length = word_len;
